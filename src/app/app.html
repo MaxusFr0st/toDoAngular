@@ -1,0 +1,66 @@
+<main>
+  <h1>To-Do List</h1>
+
+  <form class="row" (ngSubmit)="addTodo()">
+    <input class="grow" name="title" placeholder="New task..." [(ngModel)]="newTitle" />
+    <select name="priority" [(ngModel)]="newPriority">
+      @for (priority of priorities; track priority) {
+        <option [value]="priority">{{ priority }}</option>
+      }
+    </select>
+    <button type="submit">Add</button>
+  </form>
+
+  <div class="row controls">
+    <label>
+      Show
+      <select [ngModel]="filter()" (ngModelChange)="filter.set($event)">
+        <option value="all">All</option>
+        <option value="active">Not completed</option>
+        <option value="completed">Completed</option>
+      </select>
+    </label>
+    <label>
+      Sort
+      <select [ngModel]="sort()" (ngModelChange)="sort.set($event)">
+        <option value="none">Default</option>
+        <option value="high">High priority first</option>
+        <option value="low">Low priority first</option>
+      </select>
+    </label>
+  </div>
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  <ul>
+    @for (todo of visibleTodos(); track todo.id) {
+      <li class="row">
+        @if (editingId() === todo.id) {
+          <input class="grow" aria-label="Task title" [(ngModel)]="editTitle" />
+          <select aria-label="Task priority" [(ngModel)]="editPriority">
+            @for (priority of priorities; track priority) {
+              <option [value]="priority">{{ priority }}</option>
+            }
+          </select>
+          <button (click)="saveEdit(todo)">Save</button>
+          <button (click)="cancelEdit()">Cancel</button>
+        } @else {
+          <input
+            type="checkbox"
+            [attr.aria-label]="'Mark ' + todo.title + ' as completed'"
+            [checked]="todo.completed"
+            (change)="toggleTodo(todo)"
+          />
+          <span class="grow" [class.done]="todo.completed">{{ todo.title }}</span>
+          <span class="badge {{ todo.priority }}">{{ todo.priority }}</span>
+          <button (click)="startEdit(todo)">Edit</button>
+          <button (click)="deleteTodo(todo.id)">Delete</button>
+        }
+      </li>
+    } @empty {
+      <li class="empty">No tasks</li>
+    }
+  </ul>
+</main>
